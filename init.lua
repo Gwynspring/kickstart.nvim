@@ -463,7 +463,17 @@ require('lazy').setup({
       local capabilities = require('blink.cmp').get_lsp_capabilities()
 
       local servers = {
-        clangd = {},
+        clangd = {
+          cmd = { 'clangd', '--background-index', '--clang-tidy', '--completion-style=detailed', '--header-insertion=iwyu' },
+          filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+          root_dir = require('lspconfig.util').root_pattern('build/compile_commands.json', 'compile_commands.json', '.git'),
+          capabilities = capabilities,
+          settings = {
+            clangd = {
+              fallbackFlags = { '-std=c++20' },
+            },
+          },
+        },
         -- gopls = {},
         pyright = {},
         -- rust_analyzer = {},
