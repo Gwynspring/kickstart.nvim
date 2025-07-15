@@ -152,8 +152,12 @@ rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
-  'ThePrimeagen/harpoon',
-  'nvim-lua/plenary.nvim',
+
+  {
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+  },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -547,6 +551,11 @@ require('lazy').setup({
       vim.keymap.set('n', '<C-s>', function()
         ui.nav_file(4)
       end)
+
+      require('telescope').load_extension 'harpoon'
+
+      -- Keybinding für Telescope
+      vim.keymap.set('n', '<leader>fh', ':Telescope harpoon marks<CR>')
 
       require('mason-lspconfig').setup {
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
