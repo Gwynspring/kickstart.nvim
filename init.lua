@@ -87,6 +87,9 @@ vim.opt.expandtab = true
 -- Show which line your cursor is on
 vim.o.cursorline = true
 
+--Set relative line numbers
+vim.wo.relativenumber = true
+
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.o.scrolloff = 10
 
@@ -149,6 +152,8 @@ rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'NMAC427/guess-indent.nvim', -- Detect tabstop and shiftwidth automatically
+  'ThePrimeagen/harpoon',
+  'nvim-lua/plenary.nvim',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -467,6 +472,12 @@ require('lazy').setup({
 
       local capabilities = require('blink.cmp').get_lsp_capabilities()
 
+      require('lspconfig').clangd.setup {
+        cmd = { 'clangd', '--background-index' },
+        filetypes = { 'c', 'cpp', 'objc', 'objcpp' },
+        root_dir = require('lspconfig.util').root_pattern('compile_commands.json', '.git'),
+      }
+
       local servers = {
         clangd = {
           cmd = { 'clangd', '--background-index', '--clang-tidy', '--completion-style=detailed', '--header-insertion=iwyu' },
@@ -475,11 +486,11 @@ require('lazy').setup({
           capabilities = capabilities,
           settings = {
             clangd = {
-              fallbackFlags = { '-std=c++20' },
+              fallbackFlags = { '-std=c++17' },
             },
           },
         },
-        -- gopls = {},
+
         pyright = {
           settings = {
             python = {
@@ -517,12 +528,25 @@ require('lazy').setup({
         },
       }
 
-      local ensure_installed = vim.tbl_keys(servers or {})
-      vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format Lua code
-        'clang-format',
-      })
-      require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+      -- Harpoon setup
+      local mark = require 'harpoon.mark'
+      local ui = require 'harpoon.ui'
+
+      vim.keymap.set('n', '<leader>a', mark.add_file)
+      vim.keymap.set('n', '<C-e>', ui.toggle_quick_menu)
+
+      vim.keymap.set('n', '<C-h>', function()
+        ui.nav_file(1)
+      end)
+      vim.keymap.set('n', '<C-t>', function()
+        ui.nav_file(2)
+      end)
+      vim.keymap.set('n', '<C-n>', function()
+        ui.nav_file(3)
+      end)
+      vim.keymap.set('n', '<C-s>', function()
+        ui.nav_file(4)
+      end)
 
       require('mason-lspconfig').setup {
         ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
